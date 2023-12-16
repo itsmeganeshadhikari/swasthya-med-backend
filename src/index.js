@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
-
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 mongoose.connect(process.env.MONGO)      //connection to mongoDB
@@ -13,6 +13,10 @@ mongoose.connect(process.env.MONGO)      //connection to mongoDB
 const app = Express();
 
 app.use(Express.json());
+
+app.use(cookieParser());
+
+
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
@@ -33,3 +37,4 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => {
     console.log("server listening on port 3000"); 
 });
+

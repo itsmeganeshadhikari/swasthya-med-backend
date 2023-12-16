@@ -1,6 +1,6 @@
-export const errorhandler = (statusCode, message) => { 
+export const errorHandler = (statusCode, message) => { 
     const express = require('error:' + statusCode);
     error.statusCode = statusCode;
     error.message = message;
-    return errorhandler;
+    return errorHandler;
 }
