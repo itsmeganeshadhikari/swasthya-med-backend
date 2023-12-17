@@ -29,7 +29,7 @@ const createProduct = async (req, res) => {
     try {
         const product = new Product(req.body);
         await product.save();
-        res.status(201).json({ message: "Product created successfully" }, product);
+        res.status(201).json({ success: "Product created successfully" , product});
     } catch (error) {
         res.status(500).json({ error: "Internal server error" });
     }
