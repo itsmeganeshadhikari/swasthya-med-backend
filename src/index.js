@@ -1,9 +1,8 @@
 import Express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import authRouter from "./routes/auth.route.js";
-import userRouter from "./routes/user.route.js";
 import cookieParser from "cookie-parser";
+import router from "./routes/user.route";
 dotenv.config();
 
 mongoose.connect(process.env.MONGO)      //connection to mongoDB
@@ -18,8 +17,8 @@ app.use(cookieParser());
 
 
 
-app.use("/api/user", userRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/user", router);
+
 
 app.use((err, req, res, next) => {
     const statusCode = res.statusCode || 500;
