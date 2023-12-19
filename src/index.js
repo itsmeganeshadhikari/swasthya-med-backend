@@ -1,37 +1,29 @@
 import Express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import router from "./routes/user.route";
+import bodyParser from "body-parser";
+import router from "./routes/user.route.js";
+import errorMiddleware from "./middleware/error.js";
+import mongoose from "mongoose";
 dotenv.config();
 
-mongoose.connect(process.env.MONGO)      //connection to mongoDB
-    .then(() => { console.log("connected to mongoDB"); })
-    .catch(() => { console.log("couldn't connect to mongoDB"); });
+
 
 const app = Express();
 
 app.use(Express.json());
 
 app.use(cookieParser());
-
-
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/user", router);
 
+mongoose.connect(process.env.MONGO)
+    .then(() => { console.log("Connected to MongoDB"); })
+    .catch(() => { console.log("Could not connect to MongoDB"); });
 
-app.use((err, req, res, next) => {
-    const statusCode = res.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-    return
-        res
-            .status(statusCode)
-            .json({
-                    success: false,
-                    statusCode,
-                    message,
-                });
-});
+app.use(errorMiddleware);
+
 
 app.listen(3000, () => {
     console.log("server listening on port 3000"); 

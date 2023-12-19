@@ -1,32 +1,40 @@
-import { errorHandler } from "../utils/error.js";
-import User from "../models/user.model.js";
 import { catchAsyncErrors } from "../middleware/catchAsyncErrors.js";
-import sendEmail from "../utils/sendEmail.js";
+// import sendEmail from "../utils/sendEmail.js";
+// import cloudinary from "cloudinary";
 import sendToken from "../utils/jwtToken.js";
-import crypto from "crypto"
-import cloudinary from "cloudinary";
+import crypto from "crypto";
+import User from "../models/user.model.js";
+import errorHandler from "../utils/errorHandler.js";
 
+//test api
+export const test = (req, res) => {
+    res.json({
+        message: "api route is working properly",
+    });
+};
 // Register a User
 export const signUp = catchAsyncErrors(async (req, res, next) => {
-    const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-        folder: "avatars",
-        width: 150,
-        crop: "scale",
-    });
+    // const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+    //     folder: "avatars",
+    //     width: 150,
+    //     crop: "scale",
+    // });
 
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
+    
 
     const user = await User.create({
-        name,
+        username,
         email,
         password,
-        avatar: {
-            public_id: myCloud.public_id,
-            url: myCloud.secure_url,
-        },
+        // avatar: {
+        //     public_id: myCloud.public_id,
+        //     url: myCloud.secure_url,
+        // },
     });
 
     sendToken(user, 201, res);
+    
 });
 
 // Login User
@@ -36,7 +44,7 @@ export const signIn = catchAsyncErrors(async (req, res, next) => {
     // checking if user has given password and email both
 
     if (!email || !password) {
-        return next(new errorHandler("Please Enter Email & Password", 400));
+        return next(new errorHandler("Please Enter Email & Password", 400))
     }
 
     const user = await User.findOne({ email }).select("+password");
@@ -45,7 +53,7 @@ export const signIn = catchAsyncErrors(async (req, res, next) => {
         return next(new errorHandler("Invalid email or password", 401));
     }
 
-    const isPasswordMatched = await user.comparePassword(password);
+    const isPasswordMatched = user.comparePassword(password);
 
     if (!isPasswordMatched) {
         return next(new errorHandler("Invalid email or password", 401));
@@ -70,13 +78,13 @@ export const signOut = catchAsyncErrors(async (req, res, next) => {
 // Forgot Password
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
-
+    
     if (!user) {
         return next(new errorHandler("User not found", 404));
     }
-
+    
     // Get ResetPassword Token
-    const resetToken = user.getResetPasswordToken();
+    const resetToken =await user.getResetPasswordToken();
 
     await user.save({ validateBeforeSave: false });
 
@@ -141,64 +149,134 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 
     sendToken(user, 200, res);
 });
-export const test = (req, res) => {
-    res.json({
-        message: "api route is working properly",
+
+//Update User Password
+export const updateUserPassword = catchAsyncErrors(async (req, res, next) => { 
+    const user = await User.findById(req.user.id).select("+password");
+
+    const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+
+    if (!isPasswordMatched) { 
+        return next(new errorHandler("old password is incorrect", 400));
+    }
+    if (req.body.newPassword !== req.body.confirmPassword) { 
+        return next(new errorHandler("password does not match", 400));
+    }
+    user.password = req.body.password;
+
+    await User.save();
+    sendToken(user, 200, res);
+});
+
+// Get user details
+export const getUserDetails = catchAsyncErrors(async (req, res) => { 
+    const user = await user.findById(req.user.id);
+
+    res.status(200).json({
+        success: true,
+        user,
     });
-};
+});
 
-export const updateUser = async (req, res, next) => {
-    if (req.user.id !== req.params.id)
-        return next(errorHandler(401, 'You can only update your own account!'));
-    try {
-        if (req.body.password) {
-            req.body.password = bcryptjs.hashSync(req.body.password, 10);
-        }
+//update user Profile
+export const updateUserProfile = catchAsyncErrors(async (req, res, next) => { 
+    const newUserData = {
+        username: req.body.username,
+        email: req.body.email,
+    };
 
-        const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
-            {
-                $set: {
-                    username: req.body.username,
-                    email: req.body.email,
-                    password: req.body.password,
-                    avatar: req.body.avatar,
-                },
-            },
-            { new: true }
+    // if (req.body.avatar !== "") {
+    //     const user = await User.findById(req.user.id);
+
+    //     const imageId = user.avatar.public_id;
+
+    //     await cloudinary.v2.uploader.destroy(imageId);
+
+    //     const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+    //         folder: "avatars",
+    //         width: 150,
+    //         crop: "scale",
+    //     });
+
+    //     newUserData.avatar = {
+    //         public_id: myCloud.public_id,    
+    //         url_id: myCloud.secure_url,
+    //     };
+    // }
+
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: true,
+    });
+
+    res.status(200).json({
+        success: true,
+    });
+});
+
+//Update User Role -- Admin
+export const updateUserRole = catchAsyncErrors(async (req, res, next) => { 
+    const newUserData = {
+        username: req.body.username,
+        email: req.body.email,
+        role: req.body.role,
+    };
+    await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
+    });
+
+    res.status(200).json({
+        success: true,
+    });    
+});
+
+//Get all users(admin)
+export const getAllUsers = catchAsyncErrors(async (req, res, next) => { 
+    const users = await User.find();
+
+    res.status(200).json({
+        success: true,
+        users,
+    });    
+});
+
+// Get single user(admin)
+export const getSingleUser = catchAsyncErrors(async (req, res, next) => { 
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+        return next(
+            new errorHandler('User does not exist with this id: $(req.params.id)')
         );
-
-        const { password, ...rest } = updatedUser._doc;
-
-        res.status(200).json(rest);
-    } catch (error) {
-        next(error);
     }
-};
 
-export const deleteUser = async (req, res, next) => {
-    if (req.user.id !== req.params.id)
-        return next(errorHandler(401, 'You can only delete your own account!'));
-    try {
-        await User.findByIdAndDelete(req.params.id);
-        res.clearCookie('access_token');
-        res.status(200).json('User has been deleted!');
-    } catch (error) {
-        next(error);
+    res.status(200).json({
+        success: true,
+        user,
+    });
+});
+
+// Delete User -- Admin
+export const deleteUser = catchAsyncErrors(async (req, res, next) => { 
+    const user = await User.findById(req.params.id);
+
+    if (!user) { 
+        return next(
+            new errorHandler('User does not exist with this id: $(req.params.id}',400)
+        );
     }
-};
 
-export const getUser = async (req, res, next) => {
-    try {
+    // const imageId = user.avatar.public_id;
 
-        const user = await User.findById(req.params.id);
+    // await cloudinary.v2.uploader.destroy(imageId);
 
-        if (!user) return next(errorHandler(404, 'User not found!'));
+    await user.remove();
 
-        const { password: pass, ...rest } = user._doc;
-
-        res.status(200).json(rest);
-    } catch (error) {
-        next(error);
-    }
-};
+    res.status(200).json({
+        success: true,
+        message:"User Deleted Successfully",
+    });
+});

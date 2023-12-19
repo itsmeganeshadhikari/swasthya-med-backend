@@ -25,18 +25,19 @@ const userSchema = new mongoose.Schema({
         required: [true, "Please enter your password"],
         trim: true,
         min: [6, 'Must have minimum of six character long'],
-        max:[20,'Must not be more then twenty characters'],
+        max: [20, 'Must not be more then twenty characters'],
+        select:false,
     },
-    avatar: {
-        public_id: {
-            type: String,
-            required: true,
-        },
-        url: {
-            type: String,
-            required: true,
-        },
-    },
+    // avatar: {
+    //     public_id: {
+    //         type: String,
+    //         required: true,
+    //     },
+    //     url: {
+    //         type: String,
+    //         required: true,
+    //     },
+    // },
     role: {
         type: String,
         default: "user",
@@ -49,6 +50,7 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpire: Date,
 });
+
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
         next();
@@ -59,15 +61,17 @@ userSchema.pre("save", async function (next) {
 
 // JWT TOKEN
 userSchema.methods.getJWTToken = function () {
-    return Jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    return Jwt.sign({ id: this._id }, process.env.JWT_SECRET
+        , {
         expiresIn: process.env.JWT_EXPIRE,
-    });
+        }
+    );
 };
 
 // Compare Password
 
 userSchema.methods.comparePassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    return await bcryptjs.compare(password, this.password);
 };
 
 // Generating Password Reset Token

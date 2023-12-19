@@ -1,27 +1,49 @@
 import Express from "express";
 import {
-    deleteUser,
-    forgotPassword,
-    getUser,
-    resetPassword,
+    test,
+    signUp,
     signIn,
     signOut,
-    signUp,
-    test,
-    updateUser
+    forgotPassword,
+    resetPassword,
+    updateUserPassword,
+    getUserDetails,
+    updateUserProfile,
+    getAllUsers,
+    getSingleUser,
+    updateUserRole,
+    deleteUser,
 } from "../controllers/user.controller.js";
-import { verifyToken } from "../utils/verifyUser.js";
+import { authorizeRole, isAuthenticatedUser } from "../middleware/auth.js";
 
 const router = Express.Router();
 
 router.get('/test', test);
+
 router.post('/sign-up', signUp);
+
 router.post('/sign-in', signIn);
+
 router.get('/sign-out', signOut);
-router.get('/password/forgot', forgotPassword);
-router.get('/password/reset/:token', resetPassword);
-router.post('/update/:id', verifyToken, updateUser);
-router.delete('/delete/:id', verifyToken,deleteUser);
-router.get('/:id', verifyToken,getUser);
+
+router.post('/password/forgot', forgotPassword);
+
+router.put('/password/reset/:token', resetPassword);
+
+router.put('/password/update', isAuthenticatedUser, updateUserPassword);
+
+router.get('/me',isAuthenticatedUser, getUserDetails);
+
+router.put('/me/update', isAuthenticatedUser, updateUserProfile);
+
+// Admin routes
+
+router.get('/admin/users', authorizeRole("admin"), getAllUsers);
+
+router.route('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), getSingleUser);
+
+router.route('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), updateUserRole);
+
+router.route('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), deleteUser);
 
 export default router;
