@@ -1,5 +1,5 @@
 import { catchAsyncErrors } from "../middleware/catchAsyncErrors.js";
-// import sendEmail from "../utils/sendEmail.js";
+ import sendEmail from "../utils/sendEmail.js";
 // import cloudinary from "cloudinary";
 import sendToken from "../utils/jwtToken.js";
 import crypto from "crypto";
@@ -20,13 +20,14 @@ export const signUp = catchAsyncErrors(async (req, res, next) => {
     //     crop: "scale",
     // });
 
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
     
 
     const user = await User.create({
         username,
         email,
         password,
+        role,
         // avatar: {
         //     public_id: myCloud.public_id,
         //     url: myCloud.secure_url,
@@ -53,7 +54,7 @@ export const signIn = catchAsyncErrors(async (req, res, next) => {
         return next(new errorHandler("Invalid email or password", 401));
     }
 
-    const isPasswordMatched = user.comparePassword(password);
+    const isPasswordMatched =await user.comparePassword(password); 
 
     if (!isPasswordMatched) {
         return next(new errorHandler("Invalid email or password", 401));

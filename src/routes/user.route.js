@@ -40,10 +40,10 @@ router.put('/me/update', isAuthenticatedUser, updateUserProfile);
 
 router.get('/admin/users', authorizeRole("admin"), getAllUsers);
 
-router.route('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), getSingleUser);
+router.get('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), getSingleUser);
 
-router.route('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), updateUserRole);
+router.put('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), updateUserRole);
 
-router.route('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), deleteUser);
+router.delete('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), deleteUser);
 
 export default router;
