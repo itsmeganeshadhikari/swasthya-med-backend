@@ -93,7 +93,8 @@ export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
         "host"
     )}/password/reset/${resetToken}`;
 
-    const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
+    const message = `Your password reset token is :- \n\n ${resetPasswordUrl} 
+    \n\nIf you have not requested this email then, please ignore it.`;
 
     try {
         await sendEmail({
@@ -171,7 +172,7 @@ export const updateUserPassword = catchAsyncErrors(async (req, res, next) => {
 
 // Get user details
 export const getUserDetails = catchAsyncErrors(async (req, res) => { 
-    const user = await user.findById(req.user.id);
+    const user = await User.findById(req.user._id);
 
     res.status(200).json({
         success: true,
@@ -216,14 +217,15 @@ export const updateUserProfile = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-//Update User Role -- Admin
-export const updateUserRole = catchAsyncErrors(async (req, res, next) => { 
+// update User Role -- Admin
+export const updateUserRole = catchAsyncErrors(async (req, res, next) => {
     const newUserData = {
         username: req.body.username,
         email: req.body.email,
         role: req.body.role,
-    };
-    await User.findByIdAndUpdate(req.user.id, newUserData, {
+    };d
+
+    await User.findByIdAndUpdate(req.params.id, newUserData, {
         new: true,
         runValidators: true,
         useFindAndModify: false,
@@ -231,8 +233,9 @@ export const updateUserRole = catchAsyncErrors(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-    });    
+    });
 });
+
 
 //Get all users(admin)
 export const getAllUsers = catchAsyncErrors(async (req, res, next) => { 
@@ -250,7 +253,7 @@ export const getSingleUser = catchAsyncErrors(async (req, res, next) => {
 
     if (!user) {
         return next(
-            new errorHandler('User does not exist with this id: $(req.params.id)')
+            new errorHandler(`User does not exist with this id: ${req.params.id}`)
         );
     }
 
@@ -266,7 +269,7 @@ export const deleteUser = catchAsyncErrors(async (req, res, next) => {
 
     if (!user) { 
         return next(
-            new errorHandler('User does not exist with this id: $(req.params.id}',400)
+            new errorHandler(`User does not exist with this id: ${req.params.id}`,400)
         );
     }
 
@@ -274,7 +277,7 @@ export const deleteUser = catchAsyncErrors(async (req, res, next) => {
 
     // await cloudinary.v2.uploader.destroy(imageId);
 
-    await user.remove();
+    await User.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
         success: true,

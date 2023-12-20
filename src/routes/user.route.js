@@ -14,7 +14,7 @@ import {
     updateUserRole,
     deleteUser,
 } from "../controllers/user.controller.js";
-import { authorizeRole, isAuthenticatedUser } from "../middleware/auth.js";
+import { authorizeRoles, isAuthenticatedUser } from "../middleware/auth.js";
 
 const router = Express.Router();
 
@@ -38,12 +38,12 @@ router.put('/me/update', isAuthenticatedUser, updateUserProfile);
 
 // Admin routes
 
-router.get('/admin/users', authorizeRole("admin"), getAllUsers);
+router.get('/admin/users',isAuthenticatedUser, authorizeRoles("admin"), getAllUsers);
 
-router.get('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), getSingleUser);
+router.get('/admin/user/:id', isAuthenticatedUser, authorizeRoles("admin"), getSingleUser);
 
-router.put('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), updateUserRole);
+router.put('/admin/user/:id', isAuthenticatedUser, authorizeRoles("admin"), updateUserRole);
 
-router.delete('/admin/user/:id', isAuthenticatedUser, authorizeRole("admin"), deleteUser);
+router.delete('/admin/user/:id', isAuthenticatedUser, authorizeRoles("admin"), deleteUser);
 
 export default router;
