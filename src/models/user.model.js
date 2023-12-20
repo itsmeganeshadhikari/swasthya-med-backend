@@ -3,7 +3,8 @@ import validator from "validator";
 import bcryptjs from 'bcryptjs';
 import Jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { log } from "console";
+import dotenv from "dotenv"
+dotenv.config();
 
 
 const userSchema = new mongoose.Schema({
@@ -66,7 +67,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.getJWTToken = function () {
     return Jwt.sign({ id: this._id }, process.env.JWT_SECRET
         , {
-            expiresIn: 3600,// replace with process.env.JWT_EXPIRE in place pf 3600
+            expiresIn:  process.env.JWT_EXPIRE, 
         },
     );
 };
