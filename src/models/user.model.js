@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
     //         type: String,
     //         required: true,
     //     },
-    // },
+   // },
     role: {
         type: String,
         default: "user",
@@ -67,7 +67,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.getJWTToken = function () {
     return Jwt.sign({ id: this._id }, process.env.JWT_SECRET
         , {
-            expiresIn:  process.env.JWT_EXPIRE, 
+            expiresIn:  3600,//process.env.JWT_EXPIRE, 
         },
     );
 };

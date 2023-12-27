@@ -1,6 +1,6 @@
 import { catchAsyncErrors } from "../middleware/catchAsyncErrors.js";
- import sendEmail from "../utils/sendEmail.js";
-// import cloudinary from "cloudinary";
+import sendEmail from "../utils/sendEmail.js";
+//import cloudinary from "cloudinary";
 import sendToken from "../utils/jwtToken.js";
 import crypto from "crypto";
 import User from "../models/user.model.js";
@@ -20,7 +20,7 @@ export const signUp = catchAsyncErrors(async (req, res, next) => {
     //     crop: "scale",
     // });
 
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role,  } = req.body;
     
 
     const user = await User.create({
@@ -140,7 +140,7 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
     }
 
     if (req.body.password !== req.body.confirmPassword) {
-        return next(new errorHandler("Password does not password", 400));
+        return next(new errorHandler("Password does not match", 400));
     }
 
     user.password = req.body.password;
@@ -161,12 +161,12 @@ export const updateUserPassword = catchAsyncErrors(async (req, res, next) => {
     if (!isPasswordMatched) { 
         return next(new errorHandler("old password is incorrect", 400));
     }
-    if (req.body.newPassword !== req.body.confirmPassword) { 
+    if (req.body.newPassword !== req.body.confirmPassword) {  
         return next(new errorHandler("password does not match", 400));
     }
-    user.password = req.body.password;
+    user.password = req.body.newPassword;
 
-    await User.save();
+    await user.save();
     sendToken(user, 200, res);
 });
 
