@@ -1,8 +1,9 @@
-const app = require('./src/app');
-const dotenv = require('dotenv').config(); // dotenv is a package that allows us to store environment variables in a .env file
-const port = process.env.PORT || 3000; // process.env.PORT is an environment variable that is set by Heroku
+import dotenv from "dotenv";
+import { app } from "./src/app.js";
+dotenv.config();
+
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
-
