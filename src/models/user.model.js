@@ -72,6 +72,20 @@ const userSchema = new mongoose.Schema({
 
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+  address: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Address",
+  },
+});
+
+// Duplicate the ID field.
+userSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+// Ensure virtual fields are serialised.
+userSchema.set("toJSON", {
+  virtuals: true,
 });
 
 userSchema.pre("save", async function (next) {

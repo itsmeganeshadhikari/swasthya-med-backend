@@ -6,14 +6,15 @@ import errorMiddleware from "./middleware/error.js";
 import mongoose from "mongoose";
 import userRoute from "./routes/user.route.js";
 import productRoute from "./routes/product.route.js";
+import addressRoute from "./routes/addressRoute.js";
+import khaltiRoute from "./routes/khaltiRoute.js";
 dotenv.config();
 
 export const app = express();
-
-app.use(express.json());
-
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.json());
 // app.use(
 //   cors({
 //     origin: [
@@ -64,6 +65,8 @@ app.use((req, res, next) => {
 // )
 app.use("/api/user", userRoute);
 app.use("/api/product", productRoute);
+app.use("/api/address", addressRoute);
+app.use("/api/khalti", khaltiRoute);
 
 mongoose
   .connect(process.env.MONGO)

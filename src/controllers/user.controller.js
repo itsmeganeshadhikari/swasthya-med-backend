@@ -14,16 +14,15 @@ export const test = (req, res) => {
 // Register a User
 export const signUp = catchAsyncErrors(async (req, res, next) => {
   try {
+    const { avatar, email, password, firstName, lastName, phoneNumber, role } =
+      req.body;
     // const b64 = Buffer.from(req.body.avatar).toString("base64");
     // let dataURI = "data:" + req.body.avatar.mimetype + ";base64," + b64;
-    const myCloud = await cloudinary.uploader.upload(req.body.avatar, {
+    const myCloud = await cloudinary.uploader.upload(avatar, {
       folder: "avatars",
-      width: 150,
+      width: 300,
       crop: "scale",
     });
-    console.log(myCloud);
-    const { email, password, firstName, lastName, phoneNumber, role } =
-      req.body;
     const user = await User.create({
       avatar: {
         public_id: myCloud.public_id,
@@ -71,7 +70,6 @@ export const signIn = catchAsyncErrors(async (req, res, next) => {
   if (!isPasswordMatched) {
     return next(new errorHandler("Invalid email or password", 401));
   }
-
   sendToken(user, 200, res);
 });
 

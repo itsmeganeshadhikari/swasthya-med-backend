@@ -9,6 +9,10 @@ const productSchema = new Schema({
     type: Number,
     required: [true, "Please enter product price"],
   },
+  offerPrice: {
+    type: Number,
+    required: [true, "Please enter offer price"],
+  },
   description: {
     type: String,
     required: [true, "Please enter product description"],
