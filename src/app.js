@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import errorMiddleware from "./middleware/error.js";
@@ -11,6 +12,7 @@ import khaltiRoute from "./routes/khaltiRoute.js";
 dotenv.config();
 
 export const app = express();
+app.use(cors());
 app.use(cookieParser());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
