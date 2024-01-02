@@ -1,42 +1,59 @@
 import { Schema, model } from "mongoose";
 
 const productSchema = new Schema({
-  name: {
+  productName: {
     type: String,
     required: [true, "Please enter product name"],
   },
+  subDescription: {
+    type: String,
+  },
+  description: {
+    type: String,
+  },
   price: {
     type: Number,
-    required: [true, "Please enter product price"],
+  },
+  image: {
+    public_id: {
+      type: String,
+      required: true,
+    },
+    url: {
+      type: String,
+      required: true,
+    },
+  },
+  productCode: {
+    type: String,
+  },
+  productSize: {
+    type: String,
+  },
+  sku: {
+    type: String,
+  },
+  category: {
+    type: String,
+  },
+  quantity: {
+    type: Number,
+  },
+  regularPrice: {
+    type: Number,
+  },
+  salePrice: {
+    type: Number,
+    required: [true, "Please enter sale price"],
   },
   offerPrice: {
     type: Number,
     required: [true, "Please enter offer price"],
   },
-  description: {
-    type: String,
-    required: [true, "Please enter product description"],
-  },
-  category: {
-    type: String,
-    required: [true, "Please enter product category"],
-  },
   rating: {
     type: Number,
     default: 0,
   },
-  images: [
-    {
-      public_id: {
-        type: String,
-        required: true,
-      },
-      url: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
   stock: {
     type: Number,
     required: [true, "Please enter product stock"],
@@ -46,6 +63,16 @@ const productSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+// Duplicate the ID field.
+productSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+// Ensure virtual fields are serialised.
+productSchema.set("toJSON", {
+  virtuals: true,
 });
 
 const Product = model("Product", productSchema);

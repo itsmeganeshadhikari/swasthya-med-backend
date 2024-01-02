@@ -1,6 +1,7 @@
 // Import the necessary modules and models
 import { catchAsyncErrors } from "../middleware/catchAsyncErrors.js";
 import Product from "../models/product.model.js";
+import cloudinary from "../utils/cloudinary.js";
 // Get all products
 export const getAllProducts = catchAsyncErrors(async (req, res) => {
   try {
@@ -26,8 +27,41 @@ export const getProductById = catchAsyncErrors(async (req, res) => {
 
 // Create a new product
 export const createProduct = catchAsyncErrors(async (req, res) => {
+  const {
+    productName,
+    subDescription,
+    productImage,
+    productCode,
+    productSize,
+    sku,
+    category,
+    quantity,
+    regularPrice,
+    salePrice,
+    offerPrice,
+  } = req.body;
   try {
-    const product = new Product(req.body);
+    const myCloud = await cloudinary.uploader.upload(productImage, {
+      folder: "products",
+      width: 300,
+      crop: "scale",
+    });
+    const product = new Product({
+      productName,
+      subDescription,
+      productCode,
+      productSize,
+      sku,
+      category,
+      quantity,
+      regularPrice,
+      salePrice,
+      offerPrice,
+      image: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
+    });
     await product.save();
     res.status(201).json({ success: "Product created successfully", product });
   } catch (error) {
