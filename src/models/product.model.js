@@ -52,12 +52,12 @@ const productSchema = new Schema({
   },
   rating: {
     type: Number,
-    default: 0,
+    default: 20,
   },
   stock: {
-    type: Number,
+    type: Boolean,
     required: [true, "Please enter product stock"],
-    default: 1,
+    default: true,
   },
   createdAt: {
     type: Date,
