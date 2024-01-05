@@ -29,6 +29,7 @@ export const getProductById = catchAsyncErrors(async (req, res) => {
 export const createProduct = catchAsyncErrors(async (req, res) => {
   const {
     productName,
+    description,
     subDescription,
     productImage,
     productCode,
@@ -40,14 +41,17 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
     salePrice,
     offerPrice,
   } = req.body;
+  console.log(req.body);
   try {
     const myCloud = await cloudinary.uploader.upload(productImage, {
       folder: "products",
-      width: 300,
+      width: 100,
+      height: 80,
       crop: "scale",
     });
     const product = new Product({
       productName,
+      description,
       subDescription,
       productCode,
       productSize,
