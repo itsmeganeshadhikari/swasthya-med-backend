@@ -65,6 +65,9 @@ app.use((req, res, next) => {
 //     saveUninitialized: true,
 //   })
 // )
+app.get("/", (_req, res)=>{
+  res.send({message:"Hello server"});
+});
 app.use("/api/user", userRoute);
 app.use("/api/product", productRoute);
 app.use("/api/address", addressRoute);
