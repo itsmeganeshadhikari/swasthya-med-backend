@@ -13,17 +13,16 @@ export const test = (req, res) => {
 };
 // Register a User
 export const signUp = catchAsyncErrors(async (req, res, next) => {
+  
   try {
-    const { avatar, email, password, firstName, lastName, phoneNumber, role } =
-      req.body;
-    // const b64 = Buffer.from(req.body.avatar).toString("base64");
-    // let dataURI = "data:" + req.body.avatar.mimetype + ";base64," + b64;
+    const { avatar, email, password, firstName, lastName, phoneNumber, role } =  req.body;
+    if(avatar){
     const myCloud = await cloudinary.uploader.upload(avatar, {
       folder: "avatars",
       width: 300,
       crop: "scale",
-    });
-    const user = await User.create({
+    })
+     const user = await User.create({
       avatar: {
         public_id: myCloud.public_id,
         url: myCloud.secure_url,
@@ -33,14 +32,20 @@ export const signUp = catchAsyncErrors(async (req, res, next) => {
       email,
       password,
       phoneNumber,
-      role,
-      // avatar: {
-      //     public_id: myCloud.public_id,
-      //     url: myCloud.secure_url,
-      // },
+      role
     });
-
     sendToken(user, 201, res);
+    }else{
+       const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      phoneNumber,
+      role
+    });
+    sendToken(user, 201, res);
+    }
   } catch (error) {
     console.log(error);
     res.send({
