@@ -14,7 +14,7 @@ const productSchema = new Schema({
   price: {
     type: Number,
   },
-  image: {
+  image: [{
     public_id: {
       type: String,
       required: true,
@@ -22,8 +22,8 @@ const productSchema = new Schema({
     url: {
       type: String,
       required: true,
-    },
-  },
+    }
+  }],
   productCode: {
     type: String,
   },

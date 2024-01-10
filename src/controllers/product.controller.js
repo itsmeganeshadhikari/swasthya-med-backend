@@ -2,6 +2,7 @@
 import { catchAsyncErrors } from "../middleware/catchAsyncErrors.js";
 import Product from "../models/product.model.js";
 import cloudinary from "../utils/cloudinary.js";
+import limit from 'p-limit'
 // Get all products
 export const getAllProducts = catchAsyncErrors(async (req, res) => {
   try {
@@ -41,14 +42,21 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
     salePrice,
     offerPrice,
   } = req.body;
-  console.log(req.body);
+
+  const limits = limit(10)
   try {
-    const myCloud = await cloudinary.uploader.upload(productImage, {
-      folder: "products",
-      width: 100,
-      height: 80,
-      crop: "scale",
-    });
+    const images = []
+    await Promise.all(productImage.map((image) => {
+      return limits(async () => {
+        const myCloud = await cloudinary.uploader.upload(image, {
+          folder: "products",
+          width: 100,
+          height: 80,
+          crop: "scale",
+        })
+        images.push({ public_id: myCloud?.public_id, url: myCloud?.url })
+      })
+    }))
     const product = new Product({
       productName,
       description,
@@ -61,10 +69,7 @@ export const createProduct = catchAsyncErrors(async (req, res) => {
       regularPrice,
       salePrice,
       offerPrice,
-      image: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
+      image: images,
     });
     await product.save();
     res.status(201).json({ success: "Product created successfully", product });
